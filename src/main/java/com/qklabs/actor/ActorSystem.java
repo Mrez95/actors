@@ -9,18 +9,27 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import sun.plugin.dom.exception.InvalidStateException;
+
 public class ActorSystem {
-    private static final int N_THREADS = 8;
+
+    private static final String LOG_TAG = "ActorSystem";
+    static final Logger LOG = Logger.getLogger(LOG_TAG);
+
+    static final int N_THREADS = 8;
+
     private static final EmptyActor EMPTY_ACTOR = new EmptyActor();
-    private static final Logger LOG = Logger.getLogger("ActorSystem");
 
     @SuppressWarnings("FieldCanBeLocal")
     private final ExecutorService mExecutor;
     private final MessageQueue[] mQueues;
     private final Map<Actor, MessageQueue> mActorsQueueMap;
     private final Map<String, Actor> mActors;
+
+    private boolean mIsStopped = false;
 
     public ActorSystem() {
         mExecutor = Executors.newFixedThreadPool(N_THREADS);
@@ -41,6 +50,31 @@ public class ActorSystem {
     }
 
     /**
+     * Shuts down the actor system.
+     *
+     * Existing actors in the system will not be notified of this; they will just stop receiving
+     * events.
+     */
+    public void shutdown() {
+        // Shut down executor
+        mExecutor.shutdownNow();
+        try {
+            mExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            LOG.warning("Interrupted while shutting down ActorSystem");
+        }
+
+        mActors.clear();
+        mActorsQueueMap.clear();
+
+        mIsStopped = true;
+    }
+
+    private boolean isStopped() {
+        return mIsStopped;
+    }
+
+    /**
      * Returns the actor for the specified path. If the actor for the specified path doesn't already
      * exist, it is created.
      *
@@ -48,6 +82,10 @@ public class ActorSystem {
      * @param path the location of the actor in the system
      */
     public ActorRef getOrCreateActor(Class<? extends Actor> cls, String path) {
+        if (isStopped()) {
+            throw new InvalidStateException("Cannot create actors after shutdown() is called");
+        }
+
         String oldPath = path;
         path = normalizePath(path);
         if (!Objects.equals(oldPath, path)) {
@@ -97,9 +135,13 @@ public class ActorSystem {
     }
 
     void send(Actor target, Object message, ActorRef sender) {
+        if (isStopped()) {
+            throw new InvalidStateException("Cannot send messages to an actor after shutdown() is " +
+                    "called");
+        }
+
         if (target instanceof EmptyActor) {
-            // Log.w(TAG, "Message sent to empty actor: " + message");
-            System.err.println("Message sent to empty actor: " + message);
+            LOG.info("Message sent to empty actor: " + message);
         } else {
             if (message instanceof PoisonPill) {
                 MessageQueue queue = mActorsQueueMap.get(target);
@@ -117,6 +159,10 @@ public class ActorSystem {
      * @param target the actor to stop
      */
     public void stop(ActorRef target) {
+        if (isStopped()) {
+            throw new InvalidStateException("Cannot stop an actor after shutdown() is called");
+        }
+
         Actor targetActor = ((ActorRefImpl)target).getActor();
         MessageQueue queue = mActorsQueueMap.get(targetActor);
         queue.stop(targetActor);
@@ -134,11 +180,13 @@ public class ActorSystem {
             mQueue = queue;
         }
 
-        @SuppressWarnings("InfiniteLoopStatement")
         @Override
         public void run() {
             while (true) {
                 mQueue.processEvent();
+                if (Thread.currentThread().isInterrupted()) {
+                    break;
+                }
             }
         }
     }

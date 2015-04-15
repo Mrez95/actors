@@ -7,6 +7,8 @@ import static org.junit.Assert.*;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+import sun.plugin.dom.exception.InvalidStateException;
+
 public class ActorSystemTest {
     private final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -118,6 +120,26 @@ public class ActorSystemTest {
     public void testNormalizePathParentDir() {
         String str = "/hey/../there";
         assertEquals("/there", system.normalizePath(str));
+    }
+
+    @Test(expected = InvalidStateException.class)
+    public void testCantCreateActorsAfterShutdown() {
+        system.shutdown();
+        system.getOrCreateActor(CountActor.class, "/count");
+    }
+
+    @Test(expected = InvalidStateException.class)
+    public void testCantSendMessagesAfterShutdown() {
+        ActorRef counter = system.getOrCreateActor(CountActor.class, "/count");
+        system.shutdown();
+        counter.tell(new Increment());
+    }
+
+    @Test(expected = InvalidStateException.class)
+    public void testCantStopActorsAfterShutdown() {
+        ActorRef counter = system.getOrCreateActor(CountActor.class, "/count");
+        system.shutdown();
+        system.stop(counter);
     }
 
     public static class PrintActor extends Actor {
