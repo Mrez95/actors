@@ -20,9 +20,9 @@ public class Main {
             }
         }
 
-        Thread.sleep(5000);
+        Thread.sleep(3000);
 
-        System.out.println("Too late!");
+        System.out.println("\nToo late!");
         System.exit(0);
     }
 
@@ -30,11 +30,11 @@ public class Main {
         Random random = new Random();
         public void onReceive(Object message, ActorRef sender) {
             try {
-                Thread.sleep(10 * random.nextInt(100));
+                Thread.sleep(8 * random.nextInt(100));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            System.out.println(message);
+            System.out.println(getPath() + ": " + message);
         }
     }
 }
