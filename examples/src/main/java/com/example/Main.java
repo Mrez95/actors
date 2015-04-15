@@ -9,8 +9,8 @@ import java.util.Random;
 public class Main {
     public static void main(String[] args) throws InterruptedException {
         ActorSystem system = new ActorSystem();
-        ActorRef actor1 = system.getOrCreateActor(TestActor.class, "/actor1");
-        ActorRef actor2 = system.getOrCreateActor(TestActor.class, "/actor2");
+        ActorRef actor1 = system.getOrCreateActor(PrintActor.class, "/actor1");
+        ActorRef actor2 = system.getOrCreateActor(PrintActor.class, "/actor2");
 
         for (int i = 0; i < 20; i++) {
             if (i % 2 == 0) {
@@ -26,15 +26,20 @@ public class Main {
         System.exit(0);
     }
 
-    public static class TestActor extends Actor {
+    public static class PrintActor extends Actor {
         Random random = new Random();
+
         public void onReceive(Object message, ActorRef sender) {
-            try {
-                Thread.sleep(8 * random.nextInt(100));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (message instanceof String) {
+                sleep(8 * random.nextInt(100));
+                System.out.println(getPath() + ": " + message);
             }
-            System.out.println(getPath() + ": " + message);
+        }
+
+        private void sleep(long ms) {
+            try {
+                Thread.sleep(ms);
+            } catch (Exception ignored) {}
         }
     }
 }
