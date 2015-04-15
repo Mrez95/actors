@@ -93,15 +93,19 @@ public class ActorSystem {
         }
 
         final Actor actor;
+        final ActorRef result;
         if (mActors.containsKey(path)) {
             actor = mActors.get(path);
+            result = new ActorRefImpl(this, actor, path);
         } else {
             actor = create(cls);
             mActors.put(path, actor);
+            result = new ActorRefImpl(this, actor, path);
+            actor.setSelf(result);
             // Bind the actor to a thread in the actor system
             bind(actor);
         }
-        return new ActorRefImpl(this, actor, path);
+        return result;
     }
 
     String normalizePath(String path) {

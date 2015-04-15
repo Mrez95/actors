@@ -12,6 +12,10 @@ public class Actor {
     public void postStop() {
     }
 
+    void setSelf(ActorRef self) {
+        mSelf = self;
+    }
+
     public ActorRef self() {
         return mSelf;
     }
