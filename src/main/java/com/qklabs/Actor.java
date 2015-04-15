@@ -15,4 +15,8 @@ public class Actor {
     public ActorRef self() {
         return mSelf;
     }
+
+    public String getPath() {
+        return mSelf.getPath();
+    }
 }

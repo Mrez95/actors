@@ -33,7 +33,7 @@ class MessageQueue {
     }
 
     public void processEvent() {
-        Runnable task = mQueue.peek();
+        Runnable task = mQueue.poll();
         if (task != null) {
             task.run();
         }
