@@ -1,4 +1,4 @@
-package com.qklabs;
+package com.qklabs.actor;
 
 import java.util.concurrent.LinkedBlockingQueue;
 

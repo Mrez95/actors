@@ -1,4 +1,4 @@
-package com.qklabs;
+package com.qklabs.actor;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -73,7 +73,7 @@ public class ActorSystemTest {
     }
 
     @Test
-    public void testActorGet() {
+    public void testGetActor() {
         ActorRef counter = system.getOrCreateActor(CountActor.class, "/count");
         counter.tell(new Increment());
 

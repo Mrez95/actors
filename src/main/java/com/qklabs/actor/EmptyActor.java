@@ -1,4 +1,4 @@
-package com.qklabs;
+package com.qklabs.actor;
 
 class EmptyActor extends Actor {
 }

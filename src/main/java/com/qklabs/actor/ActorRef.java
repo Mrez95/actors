@@ -1,4 +1,4 @@
-package com.qklabs;
+package com.qklabs.actor;
 
 public interface ActorRef {
     public void tell(Object message, ActorRef sender);

@@ -1,4 +1,4 @@
-package com.qklabs;
+package com.qklabs.actor;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -121,14 +121,6 @@ public class ActorSystem {
         MessageQueue queue = mActorsQueueMap.get(targetActor);
         queue.stop(targetActor);
         mActors.remove(target.getPath());
-    }
-
-    /**
-     * Returns true if an actor corresponding to the given path is alive.
-     * @param path path
-     */
-    boolean isActive(String path) {
-        return mActors.containsKey(path);
     }
 
     public ActorRef getEmptyActorRef() {
