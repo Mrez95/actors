@@ -88,22 +88,34 @@ public class ActorSystemTest {
     }
 
     @Test
+    public void testRecreateActor() {
+        ActorRef counter = system.getOrCreateActor(CountActor.class, "/count");
+        counter.tell(new Increment());
+        wait(RECEIVE_LOCK, 1000);
+
+        system.stop(counter);
+
+        counter = system.getOrCreateActor(CountActor.class, "/count");
+        counter.tell(new Increment());
+        wait(RECEIVE_LOCK, 1000);
+
+        assertEquals("actor should reset", "11", out.toString());
+    }
+
+    @Test
     public void testNormalizePathExtraSlashes() {
-        ActorSystem system = new ActorSystem();
         String str = "//hey/there//sup";
         assertEquals("/hey/there/sup", system.normalizePath(str));
     }
 
     @Test
     public void testNormalizePathCurrentDir() {
-        ActorSystem system = new ActorSystem();
         String str = "/hey/./there";
         assertEquals("/hey/there", system.normalizePath(str));
     }
 
     @Test
     public void testNormalizePathParentDir() {
-        ActorSystem system = new ActorSystem();
         String str = "/hey/../there";
         assertEquals("/there", system.normalizePath(str));
     }
