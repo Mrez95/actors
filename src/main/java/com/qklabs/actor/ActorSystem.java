@@ -75,8 +75,8 @@ public class ActorSystem {
     }
 
     /**
-     * Returns the actor for the specified path. If the actor for the specified path doesn't already
-     * exist, it is created.
+     * Retrieves an actor. The path is treated as a relative path from root and is normalized before
+     * being set. If the actor corresponding to the given path doesn't exist, it will be created.
      *
      * @param cls the actor's class
      * @param path the location of the actor in the system
@@ -87,9 +87,9 @@ public class ActorSystem {
         }
 
         String oldPath = path;
-        path = normalizePath(path);
+        path = normalizePath("/" + path);
         if (!Objects.equals(oldPath, path)) {
-            LOG.warning("getOrCreateActor: normalizing paths. was " + oldPath + " is now " + path);
+            LOG.info("getOrCreateActor: normalizing paths. was " + oldPath + " is now " + path);
         }
 
         final Actor actor;

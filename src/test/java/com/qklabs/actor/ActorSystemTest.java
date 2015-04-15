@@ -142,6 +142,12 @@ public class ActorSystemTest {
         system.stop(counter);
     }
 
+    @Test
+    public void testCreateActorWithNoRootPrefix() {
+        ActorRef actor = system.getOrCreateActor(Actor.class, "test");
+        assertEquals("actor path should have root prefix", "/test", actor.getPath());
+    }
+
     public static class PrintActor extends Actor {
         @Override
         public void preStart() {
