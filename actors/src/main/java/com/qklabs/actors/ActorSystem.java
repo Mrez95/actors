@@ -1,7 +1,5 @@
 package com.qklabs.actors;
 
-import android.text.TextUtils;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -37,7 +35,7 @@ public class ActorSystem {
 
         initializeQueues();
         for (MessageQueue queue : mQueues) {
-            mExecutor.execute(new BlockingActorQueue(queue));
+            mExecutor.execute(new ActorsQueueRunnable(queue));
         }
     }
 
@@ -163,24 +161,6 @@ public class ActorSystem {
 
     public ActorRef getEmptyActorRef() {
         return new ActorRefImpl(this, EMPTY_ACTOR, "/empty");
-    }
-
-    private static class BlockingActorQueue implements Runnable {
-        private final MessageQueue mQueue;
-
-        public BlockingActorQueue(MessageQueue queue) {
-            mQueue = queue;
-        }
-
-        @Override
-        public void run() {
-            while (true) {
-                mQueue.processEvent();
-                if (Thread.currentThread().isInterrupted()) {
-                    break;
-                }
-            }
-        }
     }
 
     private static class EmptyActor extends Actor {}
