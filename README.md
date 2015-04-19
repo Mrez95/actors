@@ -13,16 +13,21 @@ Actors are great for concurrent programming. Events are handled in actors sequen
 
 ## Setup
 This is how to run the tests:
+
 1. Clone the repo
 2. File > Open... in Android Studio
-3. Select the `actors/build.gradle`
-4. Click "Open existing project"
+3. Select `actors/build.gradle`
+4. Click "Open existing project" when prompted
 5. Go to the dropdown at the top and click Edit Configurations...
 6. Remove the `actors-actors` configuration
 7. Add a new Android Tests configuration 
     1. Name it "All Tests"
     2. Set it to test the package com.qklabs.actors
 8. Run the "All Tests" configuration on an Android device
+
+This is how to use `actors` in your app:
+
+TODO
 
 
 ## How actors work
