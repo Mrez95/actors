@@ -21,6 +21,7 @@ public class ActorSystemTest extends TestCase {
         postStopped = false;
 
         system = new ActorSystem();
+        ActorRegistry.clear();
     }
 
     private void wait(Object obj, int timeout) {
@@ -35,38 +36,45 @@ public class ActorSystemTest extends TestCase {
 
     public void testCreateNonStaticInnerClassActorFails() {
         try {
-            system.getOrCreateActor(IllegalInnerClassActor.class, "/illegal");
+            system.getOrCreateActor("/illegal", IllegalInnerClassActor.class);
             fail("should have crashed because of non-static inner class");
         } catch (Exception ignored) {}
     }
 
     public void testActorPreStarted() {
-        ActorRef actor = system.getOrCreateActor(PrintActor.class, "/print");
+        ActorRef actor = system.getOrCreateActor("/print", PrintActor.class);
         wait(PRESTART_LOCK, 1000);
         assertTrue("actor preStart should be called", preStarted);
     }
 
     public void testActorPostStopped() {
-        ActorRef actor = system.getOrCreateActor(PrintActor.class, "/print");
+        ActorRef actor = system.getOrCreateActor("/print", PrintActor.class);
         system.stop(actor);
         wait(POSTSTOP_LOCK, 1000);
         assertTrue("actor postStop should be called", postStopped);
     }
 
     public void testActorTell() {
-        ActorRef actor = system.getOrCreateActor(PrintActor.class, "/print");
+        ActorRef actor = system.getOrCreateActor("/print", PrintActor.class);
         actor.tell("Hello!");
         wait(RECEIVE_LOCK, 1000);
-        assertEquals("actor should print \"Hello!\" to stdout", "Hello!", builder.toString());
+        assertEquals("should append \"Hello!\" to builder", "Hello!", builder.toString());
+    }
+
+    public void testActorGetWithRegistry() {
+        ActorRegistry.register("/print", PrintActor.class);
+        system.getOrCreateActor("/print").tell("sup bro?");
+        wait(RECEIVE_LOCK, 1000);
+        assertEquals("should append \"sup bro?\" to builder", "sup bro?", builder.toString());
     }
 
     public void testGetActor() {
-        ActorRef counter = system.getOrCreateActor(CountActor.class, "/count");
+        ActorRef counter = system.getOrCreateActor("/count", CountActor.class);
         counter.tell(new Increment());
 
         wait(RECEIVE_LOCK, 1000);
 
-        ActorRef alias = system.getOrCreateActor(CountActor.class, "/count");
+        ActorRef alias = system.getOrCreateActor("/count", CountActor.class);
         alias.tell(new Increment());
 
         wait(RECEIVE_LOCK, 1000);
@@ -75,13 +83,13 @@ public class ActorSystemTest extends TestCase {
     }
 
     public void testRecreateActor() {
-        ActorRef counter = system.getOrCreateActor(CountActor.class, "/count");
+        ActorRef counter = system.getOrCreateActor("/count", CountActor.class);
         counter.tell(new Increment());
         wait(RECEIVE_LOCK, 1000);
 
         system.stop(counter);
 
-        counter = system.getOrCreateActor(CountActor.class, "/count");
+        counter = system.getOrCreateActor("/count", CountActor.class);
         counter.tell(new Increment());
         wait(RECEIVE_LOCK, 1000);
 
@@ -91,7 +99,7 @@ public class ActorSystemTest extends TestCase {
     public void testCantCreateActorsAfterShutdown() {
         try {
             system.shutdown();
-            system.getOrCreateActor(CountActor.class, "/count");
+            system.getOrCreateActor("/count", CountActor.class);
 
             fail("create actor after shutdown should throw IllegalStateException");
         } catch (Exception e) {
@@ -101,7 +109,7 @@ public class ActorSystemTest extends TestCase {
 
     public void testCantSendMessagesAfterShutdown() {
         try {
-            ActorRef counter = system.getOrCreateActor(CountActor.class, "/count");
+            ActorRef counter = system.getOrCreateActor("/count", CountActor.class);
             system.shutdown();
             counter.tell(new Increment());
 
@@ -113,7 +121,7 @@ public class ActorSystemTest extends TestCase {
 
     public void testCantStopActorsAfterShutdown() {
         try {
-            ActorRef counter = system.getOrCreateActor(CountActor.class, "/count");
+            ActorRef counter = system.getOrCreateActor("/count", CountActor.class);
             system.shutdown();
             system.stop(counter);
 

@@ -1,5 +1,8 @@
 package com.qklabs.actors;
 
+import android.content.res.Resources;
+import android.net.Uri;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -74,10 +77,10 @@ public class ActorSystem {
      * Retrieves an actor. The path is treated as a relative path from root and is normalized before
      * being set. If the actor corresponding to the given path doesn't exist, it will be created.
      *
-     * @param cls the actor's class
      * @param path the location of the actor in the system
+     * @param cls the actor's class
      */
-    public ActorRef getOrCreateActor(Class<? extends Actor> cls, String path) {
+    public ActorRef getOrCreateActor(String path, Class<? extends Actor> cls) {
         if (isStopped()) {
             throw new IllegalStateException("Cannot create actors after shutdown() is called");
         }
@@ -96,6 +99,16 @@ public class ActorSystem {
             bind(actor);
         }
         return result;
+    }
+
+    public ActorRef getOrCreateActor(String path) {
+        Class<? extends Actor> cls = ActorRegistry.lookup(path);
+        if (cls == null) {
+            String msg = "No actor class was registered for the path " + path;
+            throw new Resources.NotFoundException(msg);
+        } else {
+            return getOrCreateActor(path, cls);
+        }
     }
 
     private void bind(Actor actor) {
