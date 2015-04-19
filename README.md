@@ -138,7 +138,7 @@ Calls to `ActorSystem.getOrCreateActor(String path)` will fail if the path doesn
 Some actors don't need a well-defined path such as "/user/abc123", and you just want to do some quick-and-dirty message passing. For this you can use `ActorSystem.getOrCreateActor(Class<? extends Actor> cls)`. This just creates a temporary actor with the path "/tmp/{random_uuid}".
 
 ### Talking to actors
-The way actors handle events asycnronously is by receiving messages through a reference. You can send a message to an actor like this:
+The way actors handle events asynchronously is by receiving messages through a reference. You can send a message to an actor like this:
 
 ```java
 ActorRef actor = system.getOrCreateActor("/actor");
@@ -151,8 +151,8 @@ You can also set the sender in the `tell` method, in case you want to be an arbi
 ActorRef producer = system.getOrCreateActor("/produce");
 ActorRef consumer = system.getOrCreateActor("/consume");
 
-// Subscribe the consumer actor to the producer actor. The producer will add the "sender" ActorRef
-// to its list of subscribers and keep it updated.
+// Subscribe the consumer actor to the producer actor. The producer will add 
+// the "sender" ActorRef to its list of subscribers and keep it updated.
 producer.tell(new Subscribe(), consumer);
 ```
 
@@ -209,7 +209,7 @@ public class MyActor extends Actor {
 ### Stopping actors
 Actors can be stopped a few ways:
 
-```
+```java
 ActorRef actor1 = system.getOrCreateActor("/actor1");
 ActorRef actor2 = system.getOrCreateActor("/actor2");
 
