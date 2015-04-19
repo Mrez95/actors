@@ -11,6 +11,20 @@ Actors are great for concurrent programming. Events are handled in actors sequen
 1. **Scala**. Akka is written in Scala, and it is difficult to use Scala to build Android apps. Although Scala is a JVM language, Android tooling doesn't officially support Scala. Frequent updates to Android tools (such as Android studio) leave Scala Android developers behind.
 2. **Heavyweight**. The Akka library plus the Scala runtime library are over 9mb, which is large for Android apps. The application size limit for Android apps is 50mb, but 10mb or less is preferred.
 
+## Setup
+This is how to run the tests:
+1. Clone the repo
+2. File > Open... in Android Studio
+3. Select the `actors/build.gradle`
+4. Click "Open existing project"
+5. Go to the dropdown at the top and click Edit Configurations...
+6. Remove the `actors-actors` configuration
+7. Add a new Android Tests configuration 
+    1. Name it "All Tests"
+    2. Set it to test the package com.qklabs.actors
+8. Run the "All Tests" configuration on an Android device
+
+
 ## How actors work
 Actors are addressable event handlers. Each actor corresponds to a path (much like how a webpage corresponds to a URL). They can send and receive messages, which are just Java objects. They can also retrieve other actors to send messages to by looking them up via their paths. Here is a full example:
 
