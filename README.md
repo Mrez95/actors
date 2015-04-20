@@ -18,7 +18,7 @@ This is how to run the tests:
 2. File > Open... in Android Studio
 3. Select `actors/build.gradle`
 4. Click "Open existing project" when prompted
-5. Go to the dropdown at the top and click Edit Configurations...
+5. Go to the dropdown at the top and click Run -> Edit Configurations...
 6. Remove the `actors-actors` configuration
 7. Add a new Android Tests configuration 
     1. Name it "All Tests"
